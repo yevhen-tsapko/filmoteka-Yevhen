@@ -1,18 +1,18 @@
 import axios from 'axios';
 const key = '288a182a80da5541ecf44f51511bfee2';
 const BASIC_URL = 'https://api.themoviedb.org/3';
-
+let page = 1;
 async function downloadGenresIdList() {
-  return await axios(
-    `${BASIC_URL}/genre/movie/list?api_key=288a182a80da5541ecf44f51511bfee2`
-  ).then(({ data }) => {
-    return data.genres;
-  });
+  return await axios(`${BASIC_URL}/genre/movie/list?api_key=${key}`).then(
+    ({ data }) => {
+      return data.genres;
+    }
+  );
 }
 
-async function fetchSearch() {
+async function fetchSearch(page) {
   return await axios(
-    `${BASIC_URL}/trending/movie/week?api_key=${key}&page=2`
+    `${BASIC_URL}/trending/movie/week?api_key=${key}&page=${page}`
   ).then(({ data }) => data);
 }
 
@@ -25,8 +25,6 @@ function createGenres(genre_ids, genresIdList) {
         genre_ids[1],
         genresIdList
       )}`;
-      break;
-
     default:
       return `${findGenreByID(genre_ids[0], genresIdList)}, ${findGenreByID(
         genre_ids[1],
@@ -42,12 +40,12 @@ function findGenreByID(id, genresIdList) {
 
 async function getCardData() {
   const genresIdList = await downloadGenresIdList();
-  const { results } = await fetchSearch();
-  results.map(({ title, backdrop_path, genre_ids }) => {
-    const fullBackdrop_path = BASIC_URL + backdrop_path;
-    const generes = createGenres(genre_ids, genresIdList);
-    console.log(fullBackdrop_path, title, generes);
-    return { fullBackdrop_path, title, generes };
+  const { results } = await fetchSearch(page);
+  return results.map(({ title, poster_path, genre_ids }) => {
+    const fullposter_path = 'https://image.tmdb.org/t/p/w500/' + poster_path;
+    const genres = createGenres(genre_ids, genresIdList);
+    // console.log(fullposter_path, title, genres);
+    return { fullposter_path, title, genres };
   });
 }
-getCardData();
+// getCardData();
